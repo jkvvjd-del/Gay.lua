@@ -273,10 +273,6 @@ local function isSniper(gun)
     return gun and gun:GetAttribute("Behavior") == "Sniper"
 end
 
-local function isTaserGun(gun)
-    return gun and (gun:GetAttribute("Behavior") == "Taser" or gun:GetAttribute("Projectile") == "Taser")
-end
-
 local function isShotgun(gun)
     return gun and (gun:GetAttribute("IsShotgun") or gun:GetAttribute("Behavior") == "Shotgun")
 end
