@@ -1,7 +1,3 @@
---[[
-	WARNING: Heads up! This script has not been verified by ScriptBlox. Use at your own risk!
-]]
--- Missspread its just for legit stuff like for example lets say your hitchance is 50 itll miss 50% of the time but if you want people to believe your actually shooting missspread makes it so it LOOKS like your missing because your missing next to them but not actually hitting them its crazy >~<
 
 local Players = game:GetService("Players")
 local LocalPlayer = Players.LocalPlayer
@@ -52,10 +48,11 @@ local cfg = {
     distancehitchance5dist = 800, -- at/after this distance, use hitchance 5
     distancehitchance5value = 1,
     autoshoot = true, -- automatically shoot when target is found
+	wallcheck = true, -- check wallcheck
     autoshootweapon = "Any", -- valid values: "Any", "Taser", "M9", "AK-47", "M4A1", "Remington 870", "Revolver", "Shotgun", "Sniper", "Automatic"
     autoshootdelay = 0.12, -- delay between auto shots
     autoshootstartdelay = 0.2, -- delay before first shot when target acquired (reaction time)
-    aimmaxdist = 100, -- max studs a target can be from you (set to 0 for any distance)
+    aimmaxdist = 300, -- max studs a target can be from you (set to 0 for any distance)
     missspread = 5, -- how far off to shoot when missing (makes it look legit)
     shotgunnaturalspread = true, -- let shotgun bullets spread naturally instead of all hitting
     shotgungamehandled = false, -- aim at player but let game handle hitchance/spread
@@ -1672,3 +1669,141 @@ else
 end
 
 notify("Silent Aim + ESP", "Loaded! RShift = Aim, RCtrl = ESP", 5)
+task.spawn(function()
+    local lp = game:GetService("Players").LocalPlayer
+    local mouse = lp:GetMouse()
+    local uis = game:GetService("UserInputService")
+    
+    while task.wait(cfg.autoshootdelay or 0.50) do
+        if cfg.enabled and cfg.autoshoot and cfg.wallcheck then
+            local target = mouse.Target
+            if target and target.Parent and target.Parent:FindFirstChild("Humanoid") then
+                local char = target.Parent
+                local plr = game:GetService("Players"):GetPlayerFromCharacter(char)
+                
+                if plr and plr.Team ~= lp.Team then
+                    local cam = workspace.CurrentCamera
+                    local origin = cam.CFrame.Position
+                    local dest = target.Position
+                    local dir = dest - origin
+                    
+                    local params = RaycastParams.new()
+                    params.FilterType = Enum.RaycastFilterType.Exclude
+                    params.FilterDescendantsInstances = {lp.Character, cam}
+                    
+                    local res = workspace:Raycast(origin, dir, params)
+                    if not res or res.Instance:IsDescendantOf(char) then
+                        mouse1click()
+                    end
+                end
+            end
+        end
+    end
+end)
+
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer
+local pgui = lp:WaitForChild("PlayerGui")
+local uis = game:GetService("UserInputService")
+
+local sg = Instance.new("ScreenGui")
+sg.Name = "MiniMenuGui"
+sg.ResetOnSpawn = false
+sg.Parent = pgui
+
+local toggleBtn = Instance.new("TextButton")
+toggleBtn.Size = UDim2.new(0, 35, 0, 35)
+toggleBtn.Position = UDim2.new(0, 10, 0, 10)
+toggleBtn.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+toggleBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleBtn.Text = "X"
+toggleBtn.TextSize = 18
+toggleBtn.Font = Enum.Font.SourceSansBold
+toggleBtn.Parent = sg
+
+local cornerX = Instance.new("UICorner")
+cornerX.CornerRadius = UDim.new(0, 8)
+cornerX.Parent = toggleBtn
+
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 160, 0, 90)
+mainFrame.Position = UDim2.new(0, 55, 0, 10)
+mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+mainFrame.BorderSizePixel = 0
+mainFrame.Visible = true
+mainFrame.Parent = sg
+
+local cornerMain = Instance.new("UICorner")
+cornerMain.CornerRadius = UDim.new(0, 10)
+cornerMain.Parent = mainFrame
+
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 30)
+title.BackgroundTransparency = 1
+title.Text = "MENU"
+title.TextColor3 = Color3.fromRGB(255, 255, 255)
+title.TextSize = 14
+title.Font = Enum.Font.SourceSansBold
+title.Parent = mainFrame
+
+local shotBtn = Instance.new("TextButton")
+shotBtn.Size = UDim2.new(0, 130, 0, 35)
+shotBtn.Position = UDim2.new(0, 15, 0, 40)
+shotBtn.BackgroundColor3 = cfg.autoshoot and Color3.fromRGB(0, 170, 100) or Color3.fromRGB(40, 40, 40)
+shotBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+shotBtn.Text = "Auto Shoot: " .. (cfg.autoshoot and "ON" or "OFF")
+shotBtn.TextSize = 14
+shotBtn.Font = Enum.Font.SourceSansBold
+shotBtn.Parent = mainFrame
+
+local cornerShot = Instance.new("UICorner")
+cornerShot.CornerRadius = UDim.new(0, 6)
+cornerShot.Parent = shotBtn
+
+toggleBtn.MouseButton1Click:Connect(function()
+    mainFrame.Visible = not mainFrame.Visible
+end)
+
+shotBtn.MouseButton1Click:Connect(function()
+    if cfg then
+        cfg.autoshoot = not cfg.autoshoot
+        if cfg.autoshoot then
+            shotBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 100)
+            shotBtn.Text = "Auto Shoot: ON"
+        else
+            shotBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            shotBtn.Text = "Auto Shoot: OFF"
+        end
+    end
+end)
+
+local dragging, dragInput, dragStart, startPos
+local function update(input)
+    local delta = input.Position - dragStart
+    mainFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+mainFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragging = true
+        dragStart = input.Position
+        startPos = mainFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragging = false
+            end
+        end)
+    end
+end)
+
+mainFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+uis.InputChanged:Connect(function(input)
+    if input == dragInput and dragging then
+        update(input)
+    end
+end)
