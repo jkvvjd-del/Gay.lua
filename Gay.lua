@@ -58,22 +58,22 @@ local cfg = {
     shotgungamehandled = false, -- aim at player but let game handle hitchance/spread
     prioritizeclosest = true, -- shoot whoever is closest to your cursor (false = random from fov)
     prioritizecriminals = true, -- if an inmate and criminal are both in fov, prefer the criminal
-    targetstickiness = false, -- enable/disable target stickiness
+    targetstickiness = true, -- enable/disable target stickiness
     targetstickinessduration = 0.6, -- how long to keep target (seconds)
-    targetstickinessrandom = false, -- use random range instead of fixed value
+    targetstickinessrandom = true, -- use random range instead of fixed value
     targetstickinessmin = 0.3, -- min time if random is on
     targetstickinessmax = 0.7, -- max time if random is on
     fov = 80, -- how big the aim circle is
     showfov = true, -- show the fov circle on screen
     staticfov = true, -- keep the fov centered instead of following touch/mouse
-    showtargetline = false, -- draw a line to your target
+    showtargetline = true, -- draw a line to your target
     togglekey = Enum.KeyCode.RightShift, -- key to toggle silent aim
     aimpart = "Head", -- what body part to aim at
     randomparts = true, -- randomly pick body parts instead
     partslist = {"Head", "Torso", "Left Arm", "Right Arm", "Left Leg", "Right Leg", "HumanoidRootPart"}, -- parts to pick from if random is on (can add more if wanted)
     esp = true,
     espteamcheck = true,
-    espshowteam = false,
+    espshowteam = true,
     esptargets = {guards = true, inmates = true, criminals = true},
     espmaxdist = 500, -- set to 0 for any distance
     espshowdist = true,
