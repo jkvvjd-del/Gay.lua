@@ -436,18 +436,6 @@ local function isOwnedGrabbable(obj)
     return false
 end
 
-local function getGrabbablePart(model)
-    if not model then
-        return nil
-    end
-    return model.PrimaryPart or model:FindFirstChildWhichIsA("BasePart", true)
-end
-
-local function distSq(a, b)
-    local delta = a - b
-    return delta.X * delta.X + delta.Y * delta.Y + delta.Z * delta.Z
-end
-
 local function trackGrabbable(obj)
     if isSupportedGrabbable(obj) then
         trackedGrabbables[obj] = true
