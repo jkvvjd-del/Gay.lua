@@ -1669,12 +1669,26 @@ else
 end
 
 notify("Silent Aim + ESP", "Loaded! RShift = Aim, RCtrl = ESP", 5)
+local targetLabel = Instance.new("TextLabel")
+targetLabel.Size = UDim2.new(0, 200, 0, 30)
+targetLabel.Position = UDim2.new(0.5, -100, 0.4, -40)
+targetLabel.BackgroundTransparency = 1
+targetLabel.Text = ""
+targetLabel.TextColor3 = Color3.fromRGB(255, 50, 50)
+targetLabel.TextSize = 18
+targetLabel.Font = Enum.Font.SourceSansBold
+targetLabel.TextStrokeTransparency = 0
+targetLabel.TextStrokeColor3 = Color3.fromRGB(0, 0, 0)
+targetLabel.Visible = false
+targetLabel.Parent = game:GetService("Players").LocalPlayer:WaitForChild("PlayerGui"):WaitForChild("ScreenGui", 5) or game:GetService("Players").LocalPlayer.PlayerGui:FindFirstChildOfClass("ScreenGui")
+
 task.spawn(function()
     local lp = game:GetService("Players").LocalPlayer
     local mouse = lp:GetMouse()
     local uis = game:GetService("UserInputService")
     
-    while task.wait(cfg.autoshootdelay or 0.50) do
+    while task.wait(cfg.autoshootdelay or 0.25) do
+        local showLabel = false
         if cfg.enabled and cfg.autoshoot and cfg.wallcheck then
             local target = mouse.Target
             if target and target.Parent and target.Parent:FindFirstChild("Humanoid") then
@@ -1682,6 +1696,11 @@ task.spawn(function()
                 local plr = game:GetService("Players"):GetPlayerFromCharacter(char)
                 
                 if plr and plr.Team ~= lp.Team then
+                    if cfg.targetcheck then
+                        targetLabel.Text = "TARGET: " .. plr.Name
+                        showLabel = true
+                    end
+                    
                     local cam = workspace.CurrentCamera
                     local origin = cam.CFrame.Position
                     local dest = target.Position
@@ -1698,6 +1717,7 @@ task.spawn(function()
                 end
             end
         end
+        targetLabel.Visible = showLabel
     end
 end)
 
@@ -1705,6 +1725,10 @@ local Players = game:GetService("Players")
 local lp = Players.LocalPlayer
 local pgui = lp:WaitForChild("PlayerGui")
 local uis = game:GetService("UserInputService")
+
+if cfg and cfg.targetcheck == nil then
+    cfg.targetcheck = false
+end
 
 local sg = Instance.new("ScreenGui")
 sg.Name = "MiniMenuGui"
@@ -1726,7 +1750,7 @@ cornerX.CornerRadius = UDim.new(0, 8)
 cornerX.Parent = toggleBtn
 
 local mainFrame = Instance.new("Frame")
-mainFrame.Size = UDim2.new(0, 160, 0, 90)
+mainFrame.Size = UDim2.new(0, 160, 0, 130)
 mainFrame.Position = UDim2.new(0, 55, 0, 10)
 mainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 mainFrame.BorderSizePixel = 0
@@ -1760,6 +1784,20 @@ local cornerShot = Instance.new("UICorner")
 cornerShot.CornerRadius = UDim.new(0, 6)
 cornerShot.Parent = shotBtn
 
+local targetBtn = Instance.new("TextButton")
+targetBtn.Size = UDim2.new(0, 130, 0, 35)
+targetBtn.Position = UDim2.new(0, 15, 0, 85)
+targetBtn.BackgroundColor3 = cfg.targetcheck and Color3.fromRGB(0, 170, 100) or Color3.fromRGB(40, 40, 40)
+targetBtn.TextColor3 = Color3.fromRGB(255, 255, 255)
+targetBtn.Text = "Target Info: " .. (cfg.targetcheck and "ON" or "OFF")
+targetBtn.TextSize = 14
+targetBtn.Font = Enum.Font.SourceSansBold
+targetBtn.Parent = mainFrame
+
+local cornerTarget = Instance.new("UICorner")
+cornerTarget.CornerRadius = UDim.new(0, 6)
+cornerTarget.Parent = targetBtn
+
 toggleBtn.MouseButton1Click:Connect(function()
     mainFrame.Visible = not mainFrame.Visible
 end)
@@ -1773,6 +1811,19 @@ shotBtn.MouseButton1Click:Connect(function()
         else
             shotBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
             shotBtn.Text = "Auto Shoot: OFF"
+        end
+    end
+end)
+
+targetBtn.MouseButton1Click:Connect(function()
+    if cfg then
+        cfg.targetcheck = not cfg.targetcheck
+        if cfg.targetcheck then
+            targetBtn.BackgroundColor3 = Color3.fromRGB(0, 170, 100)
+            targetBtn.Text = "Target Info: ON"
+        else
+            targetBtn.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+            targetBtn.Text = "Target Info: OFF"
         end
     end
 end)
