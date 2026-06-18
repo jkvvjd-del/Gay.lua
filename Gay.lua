@@ -233,11 +233,11 @@ local function getAimScreenPosition(camera)
     end
     
     local lastInput = UserInputService:GetLastInputType()
-    if UserInputService.MouseBehavior == Enum.MouseBehavior.LockCenter then
+    if true then
         local viewportSize = camera.ViewportSize
         return Vector2.new(viewportSize.X / 2, viewportSize.Y / 2)
     end
-    
+
     if lastInput == Enum.UserInputType.Touch then
         local mobileCursor = getMobileCursor()
         if mobileCursor and mobileCursor.Visible then
