@@ -1700,7 +1700,6 @@ task.spawn(function()
                     
                     local res = workspace:Raycast(origin, dir, params)
                     if not res or res.Instance:IsDescendantOf(char) then
-                        mouse1click()
                     end
                 end
             end
